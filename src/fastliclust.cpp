@@ -3,14 +3,14 @@
 using namespace Rcpp;
 
 int findMin(NumericVector & sim, int firstPos, int lastPos);
-void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, int pos, int & firstPos, int & lastPos);
-int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights);
+void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, int pos, int & firstPos, int & lastPos, double disconnect);
+int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, double disconnect);
 
 #define _FLC_DEBUG
 #undef _FLC_DEBUG
 
 // [[Rcpp::export]]
-int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights)
+int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, double disconnect = 1)
 {
   int cnt = 0;
   
@@ -21,7 +21,7 @@ int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & we
   
   while(sim[pos] >= 0)
   {
-    fastLiclust_iter(linkmat, sim, weights, pos, firstPos, lastPos);
+    fastLiclust_iter(linkmat, sim, weights, pos, firstPos, lastPos, disconnect);
     pos_old = pos;
     pos = findMin(sim, firstPos, lastPos);
     cnt++;
@@ -34,7 +34,8 @@ int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & we
 typedef std::pair<int, int> nodepair;
 
 
-void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, int pos ,int & firstPos, int & lastPos)
+void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, int pos,
+                      int & firstPos, int & lastPos, double disconnect = 1)
 {
   int n = weights.length();
   int nLinks = linkmat.nrow();
@@ -80,7 +81,7 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
       {
         // Note: this occurs exactly once in the last iteration,
         // because the iterator 
-        Rcout << "problem ";
+        //Rcout << "problem ";
         
         continue;
       }
@@ -136,9 +137,9 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
   // * 
   int w1 = weights[lFrom-1];
   int w2 = weights[lTo-1];
-  double s1 = 0;
-  double s2 = 0;
-  double s = 0;
+  double s1 = disconnect;
+  double s2 = disconnect;
+  double s = disconnect;
   
   // A stack for which zero-entries to swap to the back:
   std::priority_queue<int> swapback;
@@ -146,8 +147,10 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
   // Iterate through the matched node connections.
   for(std::map<int,nodepair>::iterator i = pairs.begin(); i != pairs.end(); i++)
   {
-    s1=0;
-    s2=0;
+    // Set the distance a priori to the "disconnect" value, which signifies the distance between
+    // disconnected points
+    s1=disconnect;
+    s2=disconnect;
     nodepair np = i->second;
 #ifdef _FLC_DEBUG
     Rcout << "* ["<< i->first << ": " << np.first << " " << np.second << "] ";

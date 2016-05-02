@@ -28,10 +28,26 @@ toHclust <- function(linkmat, sim)
 }
 
 
-toLinkmat <- function(comp)
+#' Convert distance matrix to input suitable for fastLiclust
+#'
+#' Mainly intended to show equivalence with hclust, when one generates a distance
+#' matrix to use with hclust and then with fastLiclust to generate the same dendrogram.
+#'
+#' @param mat The input distance matrix, as obtained from as.matrix() on a dist object
+#' @param disconnect The distance value for disconnected features, e.g. 1 in dissimilarity matrices, or 
+#'  NA when that value was set to NA before. These points are not represented in the linkage matrix.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+toLinkmat <- function(mat, disconnect = 1)
 {
-  n <- nrow(comp)
-  pts <- which(comp != 0)
+  n <- nrow(mat)
+  if(is.na(disconnect))
+    pts <- which(!is.na(disconnect))
+  else
+    pts <- which(mat != disconnect)
   linkmat <- matrix(0L, nrow=length(pts), ncol=2)
   linkmat[,1] <- as.integer((pts - 1) %/% n + 1)
   linkmat[,2] <- as.integer(((pts - 1) %% n )+1)
@@ -40,7 +56,7 @@ toLinkmat <- function(comp)
   # [1] 20519
   # linkmat <- linkmat[-20519,]
   # nred <- nrow(linkmat)
-  simcol <- comp[pts]
+  simcol <- mat[pts]
   # extract lower triangle without diagonal
   simcol <- simcol[linkmat[,1] < linkmat[,2]]
   linkmat <- linkmat[linkmat[,1] < linkmat[,2],]

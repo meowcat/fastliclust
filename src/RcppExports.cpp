@@ -6,16 +6,16 @@
 using namespace Rcpp;
 
 // fastLiclust
-int fastLiclust(IntegerMatrix& linkmat, NumericVector& sim, IntegerVector& weights);
-RcppExport SEXP fastliclust_fastLiclust(SEXP linkmatSEXP, SEXP simSEXP, SEXP weightsSEXP) {
+int fastLiclust(IntegerMatrix& linkmat, NumericVector& sim, IntegerVector& weights, double disconnect);
+RcppExport SEXP fastliclust_fastLiclust(SEXP linkmatSEXP, SEXP simSEXP, SEXP weightsSEXP, SEXP disconnectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< IntegerMatrix& >::type linkmat(linkmatSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type sim(simSEXP);
     Rcpp::traits::input_parameter< IntegerVector& >::type weights(weightsSEXP);
-    __result = Rcpp::wrap(fastLiclust(linkmat, sim, weights));
+    Rcpp::traits::input_parameter< double >::type disconnect(disconnectSEXP);
+    __result = Rcpp::wrap(fastLiclust(linkmat, sim, weights, disconnect));
     return __result;
 END_RCPP
 }
-
