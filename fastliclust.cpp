@@ -2,7 +2,7 @@
 #include <queue>
 using namespace Rcpp;
 
-int findMax(NumericVector & sim, int firstPos, int lastPos);
+int findMin(NumericVector & sim, int firstPos, int lastPos);
 void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, int pos, int & firstPos, int & lastPos);
 int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights);
 
@@ -16,14 +16,14 @@ int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & we
   
   int firstPos = 0;
   int lastPos = linkmat.nrow();
-  int pos = findMax(sim, firstPos, lastPos);
+  int pos = findMin(sim, firstPos, lastPos);
   int pos_old = pos;
   
   while(sim[pos] >= 0)
   {
     fastLiclust_iter(linkmat, sim, weights, pos, firstPos, lastPos);
     pos_old = pos;
-    pos = findMax(sim, firstPos, lastPos);
+    pos = findMin(sim, firstPos, lastPos);
     cnt++;
     if((cnt % 10000) == 0)
       Rcout << "<" << cnt << ">> ";
@@ -203,7 +203,7 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
   }
   
   // Write new similarity and weights
-  sim[pos] = -1-(1-sim[pos]);
+  sim[pos] = -1-(sim[pos]);
   weights[lFrom-1] = w1+w2;
 
   
@@ -219,20 +219,21 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
     
 }
 
-int findMax(NumericVector & sim, int firstPos, int lastPos)
+int findMin(NumericVector & sim, int firstPos, int lastPos)
 {
-  double max = 0;
-  int maxPos = 0;
+  double min = sim[firstPos];
+  int minPos = firstPos;
   int n = sim.length();
   //NumericVector::iterator i = sim.begin();
+  
   for(int i = firstPos;i<lastPos;i++)
   {
-    if(sim[i] > max)
+    if(sim[i] < min)
     {
-      max = sim[i];
-      maxPos = i;
+      min = sim[i];
+      minPos = i;
     }
   }
-  return(maxPos);
+  return(minPos);
 }
 
