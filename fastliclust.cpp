@@ -1,8 +1,9 @@
 #include <Rcpp.h>
+#include <queue>
 using namespace Rcpp;
 
-int findMax(NumericVector & sim);
-void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, int pos);
+int findMax(NumericVector & sim, int firstPos, int lastPos);
+void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, int pos, int & firstPos, int & lastPos);
 int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights);
 
 #define _FLC_DEBUG
@@ -12,13 +13,17 @@ int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & we
 int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights)
 {
   int cnt = 0;
-  int pos = findMax(sim);
+  
+  int firstPos = 0;
+  int lastPos = linkmat.nrow();
+  int pos = findMax(sim, firstPos, lastPos);
   int pos_old = pos;
+  
   while(sim[pos] >= 0)
   {
-    fastLiclust_iter(linkmat, sim, weights, pos);
+    fastLiclust_iter(linkmat, sim, weights, pos, firstPos, lastPos);
     pos_old = pos;
-    pos = findMax(sim);
+    pos = findMax(sim, firstPos, lastPos);
     cnt++;
     if((cnt % 10000) == 0)
       Rcout << "<" << cnt << ">> ";
@@ -29,7 +34,7 @@ int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & we
 typedef std::pair<int, int> nodepair;
 
 
-void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, int pos)
+void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, int pos ,int & firstPos, int & lastPos)
 {
   int n = weights.length();
   int nLinks = linkmat.nrow();
@@ -41,16 +46,46 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
 #endif
     
   int nTarg = 0;
+    
+  // First swap the entry being processed to the front
+  int swap = linkmat[pos];
+  linkmat[pos] = linkmat[firstPos];
+  linkmat[firstPos] = swap;
+  swap = linkmat[pos + nLinks];
+  linkmat[pos + nLinks] = linkmat[firstPos + nLinks];
+  linkmat[firstPos + nLinks] = swap;
+  double simSwap = sim[pos];
+  sim[pos] = sim[firstPos];
+  sim[firstPos] = simSwap;
+  pos = firstPos;
+  firstPos++;
+  
+  if(firstPos == lastPos - 1)
+    Rcout << "terminate ";
+
   // Build link list matching this pair
   //std::map<int, nodepair> > links();
   std::map<int, nodepair> pairs;
   // Find items matching lFrom
-  for(IntegerMatrix::iterator i = linkmat.begin(); i < linkmat.end(); i++)
+  for(IntegerMatrix::iterator i = linkmat.begin() + firstPos; i < linkmat.begin() + nLinks + lastPos; i++)
   {
-    if(((i - linkmat.begin()) % nLinks) == pos)
-      continue;
+    // If lastPos was reached on first column, jump to firstPos on the second
+    if((i -linkmat.begin()) == lastPos + 1)
+      i = linkmat.begin() + nLinks + firstPos;
+    
     if(*i == lFrom)
     {
+      // Do not add self-link to the linkage stack
+      if(((i - linkmat.begin()) % nLinks) == pos)
+      {
+        // Note: this occurs exactly once in the last iteration,
+        // because the iterator 
+        Rcout << "problem ";
+        
+        continue;
+      }
+        
+      
       // Find link partner by matrix indexing
       if((i + nLinks) >= linkmat.end())
         nTarg = (i-nLinks) - linkmat.begin();
@@ -66,12 +101,22 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
     
   }
   // Find items matching lTo
-  for(IntegerMatrix::iterator i = linkmat.begin(); i < linkmat.end(); i++)
+  for(IntegerMatrix::iterator i = linkmat.begin() + firstPos; i < linkmat.begin() + nLinks + lastPos; i++)
   {
+    // If lastPos was reached on first column, jump to firstPos on the second
+    if((i -linkmat.begin()) == lastPos + 1)
+      i = linkmat.begin() + nLinks + firstPos;
+    
+
     if(*i == lTo)
     {
+      // Do not add self-link to the linkage stack
       if(((i - linkmat.begin()) % nLinks) == pos)
-        continue;
+      {
+        Rcout << "problem ";
+        
+        continue;}
+      
       // Find link partner by matrix indexing
       if((i + nLinks) >= linkmat.end())
         nTarg =(i-nLinks) - linkmat.begin();
@@ -94,6 +139,9 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
   double s1 = 0;
   double s2 = 0;
   double s = 0;
+  
+  // A stack for which zero-entries to swap to the back:
+  std::priority_queue<int> swapback;
   
   // Iterate through the matched node connections.
   for(std::map<int,nodepair>::iterator i = pairs.begin(); i != pairs.end(); i++)
@@ -118,9 +166,16 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
     // delete second link if both are present
     if((np.first != 0) && (np.second != 0))
     {
-      linkmat[(np.second - 1) % nLinks] = 0;
-      linkmat[((np.second - 1) % nLinks) + nLinks] = 0;
-      sim[(np.second - 1) % nLinks] = NA_REAL;
+      //linkmat[(np.second - 1) % nLinks] = 0;
+      //linkmat[((np.second - 1) % nLinks) + nLinks] = 0;
+      //sim[(np.second - 1) % nLinks] = NA_REAL;
+      swapback.push((np.second - 1) % nLinks);
+      
+      // TODO: swap zeroes to the back. Basically a lastpos-- will decrease as zeroes fill up from behind,
+      // and linkmat[(np.second - 1) % nLinks], linkmat[((np.second - 1) % nLinks) + nLinks] can be
+      // filled with linkmat[lastpos] and linkmat[lastpos + nlinks]
+      // Same with sim, of course.
+      // I think this necessitates that we work the node connections in descending order of row position.
     }
     // Substitute second link if it is present but not deleted
     if((np.first == 0) && (np.second != 0))
@@ -128,9 +183,30 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
       linkmat[((np.second - 1) + nLinks) % (2*nLinks)] = lFrom;
     }
   }
+
+  // Swap zeroed entries to the back:
+  while(!swapback.empty())
+  {
+    lastPos--;
+    int nSwap = swapback.top();
+    linkmat[nSwap] = linkmat[lastPos];
+    linkmat[nSwap + nLinks] = linkmat[lastPos + nLinks];
+    sim[nSwap] = sim[lastPos];
+    // The following could be left out, since we could just ignore the positions, but we do it now for cleanness.
+    // To be removed for optimization.
+    linkmat[lastPos] = 0;
+    linkmat[lastPos + nLinks] = 0;
+    sim[lastPos] = NA_REAL;
+    //linkmat[((np.second - 1) % nLinks) + nLinks] = 0;
+    //sim[(np.second - 1) % nLinks] = NA_REAL;
+    swapback.pop();
+  }
+  
   // Write new similarity and weights
   sim[pos] = -1-(1-sim[pos]);
-  weights[lFrom-1] = w1+w2;  
+  weights[lFrom-1] = w1+w2;
+
+  
 
 #ifdef _FLC_DEBUG
   Rcout << std::endl << "{";
@@ -143,13 +219,13 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
     
 }
 
-int findMax(NumericVector & sim)
+int findMax(NumericVector & sim, int firstPos, int lastPos)
 {
   double max = 0;
   int maxPos = 0;
   int n = sim.length();
   //NumericVector::iterator i = sim.begin();
-  for(int i = 0;i<n;i++)
+  for(int i = firstPos;i<lastPos;i++)
   {
     if(sim[i] > max)
     {
