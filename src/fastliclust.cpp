@@ -9,6 +9,23 @@ int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & we
 #define _FLC_DEBUG
 #undef _FLC_DEBUG
 
+
+//' Hierarchical clustering on a linkage matrix
+//' 
+//' Performs hierarchical clustering (currently only average linkage is supported) on a dataset which is 
+//' only partially interconnected (i.e. between some vertices there is no edge.) This is in particular a
+//' memory-saving alternative on large sparse graphs which are only encoded in the linkage matrix, i.e. have
+//' no nxn distance matrix. Other use cases are sparsely populated matrices which can be extracted directly from 
+//' \code{ff} objects on disk, so no nxn matrix has to be built in RAM.
+//' 
+//' @param linkmat A nx2 integer matrix of vertices which are connected.
+//' @param sim A length n numeric vector of the distances between the connected edges.
+//' @param weights A n integer vector initialized with all 1, which will contain the number of vertices
+//'   summarized under a cluster (necessary in the algorithm.)
+//'   
+//' @return Nothing - the operation is performed in place on the matrix! Note this is highly unstandard
+//' R behavior. To get the results in a useful way, run \link{\code{toHclust}}.
+//' @export
 // [[Rcpp::export]]
 int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, double disconnect = 1)
 {

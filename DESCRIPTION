@@ -5,9 +5,12 @@ Version: 0.1
 Date: 2016-05-02
 Author: Michael A. Stravs <stravsmi@eawag.ch>
 Maintainer: Michael A. Stravs <stravsmi@eawag.ch>
-Description: Hierarchical clustering for sparsely linked datasets. 
-  Inputs are specified as a weighted connectivity matrix instead of a full distance matrix, which
-  is much more memory efficient for cases where many points are totally unconnected.
+Description: Hierarchical clustering for sparsely linked datasets. Inputs are
+    specified as a weighted connectivity matrix instead of a full distance matrix,
+    which is much more memory efficient for cases where many points are totally
+    unconnected.
 License: GPL (>= 2)
-Imports: Rcpp (>= 0.12.4.5)
+Imports:
+    Rcpp (>= 0.12.4.5)
 LinkingTo: Rcpp
+RoxygenNote: 5.0.1

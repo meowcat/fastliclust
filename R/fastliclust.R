@@ -1,4 +1,17 @@
+#'@importFrom Rcpp evalCpp
+#'@useDynLib fastliclust
+NULL
 
+#' Convert fastliclust output to hclust-compatible output
+#'
+#' @param linkmat The linkage matrix after processing fastliclust
+#' @param sim The distance list after processing fastliclust
+#'
+#' @return a hclust-style object. See hclust for details
+#' @export
+#' 
+#'
+#' @examples
 toHclust <- function(linkmat, sim)
 {
   # reconstruct the hclust output from linkmat and sim
@@ -37,7 +50,9 @@ toHclust <- function(linkmat, sim)
 #' @param disconnect The distance value for disconnected features, e.g. 1 in dissimilarity matrices, or 
 #'  NA when that value was set to NA before. These points are not represented in the linkage matrix.
 #'
-#' @return
+#' @return A list with components linkmat (a matrix of connected vertex pairs), 
+#'    sim (the distances associated with the edges), and weights (a counter which denotes the number
+#'    of original vertices summed up in a cluster, initialized to 1.)
 #' @export
 #'
 #' @examples
