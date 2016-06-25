@@ -109,14 +109,20 @@ toLinkmat.ff <- function(ffmat, disconnect = 1, blocksize=100)
   linkmat[,1] <- as.integer((pts - 1) %/% n + 1)
   linkmat[,2] <- as.integer(((pts - 1) %% n )+1)
   
+  pts <- pts[linkmat[,1] < linkmat[,2]]
+  gc()
+  
   simcol <- ffmat[pts]
 
   # extract lower triangle without diagonal
-  simcol <- simcol[linkmat[,1] < linkmat[,2]]
+  #simcol <- simcol[linkmat[,1] < linkmat[,2]]
   linkmat <- linkmat[linkmat[,1] < linkmat[,2],]
   # build a vector of weights, start with w 1
   nred <- nrow(linkmat)
-  nodeweight <- rep(1L, n)
+  
+  rm(pts)
+  
+  nodeweight <- rep(1L, nred)
   list(linkmat=linkmat, sim=simcol, weights=nodeweight)
 }
 
