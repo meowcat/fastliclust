@@ -78,8 +78,8 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
   pos = firstPos;
   firstPos++;
   
-  if(firstPos == lastPos - 1)
-    Rcout << "terminate ";
+  //if(firstPos == lastPos - 1)
+    //Rcout << "terminate ";
 
   // Build link list matching this pair
   //std::map<int, nodepair> > links();
@@ -131,7 +131,7 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
       // Do not add self-link to the linkage stack
       if(((i - linkmat.begin()) % nLinks) == pos)
       {
-        Rcout << "problem ";
+        //Rcout << "problem ";
         
         continue;}
       
