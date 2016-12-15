@@ -60,7 +60,7 @@ toLinkmat <- function(mat, disconnect = 1)
 {
   n <- nrow(mat)
   if(is.na(disconnect))
-    pts <- which(!is.na(disconnect))
+    pts <- which(!is.na(mat))
   else
     pts <- which(mat != disconnect)
   linkmat <- matrix(0L, nrow=length(pts), ncol=2)
