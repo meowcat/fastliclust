@@ -12,5 +12,7 @@ Description: Hierarchical clustering for sparsely linked datasets. Inputs are
 License: GPL (>= 2)
 Imports:
     Rcpp (>= 0.12.4.5)
+Depends:
+    igraph
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1

@@ -4,7 +4,7 @@
 \alias{ff_which_matrix}
 \title{which in ff matrices}
 \usage{
-ff_which_matrix(X, cond, by = 100)
+ff_which_matrix(X, cond, by = 100, enclos = parent.frame())
 }
 \arguments{
 \item{X}{The \code{ff_matrix} to scan}

@@ -16,7 +16,7 @@ summarized under a cluster (necessary in the algorithm.)}
 }
 \value{
 Nothing - the operation is performed in place on the matrix! Note this is highly unstandard
-R behavior. To get the results in a useful way, run \link{\code{toHclust}}.
+R behavior. To get the results in a useful way, run first \link{\code{crop}} then \link{\code{toHclust}}.
 }
 \description{
 Performs hierarchical clustering (currently only average linkage is supported) on a dataset which is 

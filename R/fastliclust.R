@@ -80,3 +80,42 @@ toLinkmat <- function(mat, disconnect = 1)
   nodeweight <- rep(1L, n)
   list(linkmat=linkmat, sim=simcol, weights=nodeweight)
 }
+
+
+
+#' Crop the result matrix
+#' 
+#' From a \link{\code{fastLiclust}}() result, crops out the actually useful part.
+#' In addition, it checks for disconnected subgraphs and connects them together
+#' with the highest observed distance.
+#'
+#' @param flInput 
+#'
+#' @return a flInput-format result for processing with \link{\code{toHclust}}
+#' @export
+#'
+#' @examples
+crop <- function(flInput)
+{
+  n <- match(0,flInput$linkmat)-1
+  if(!is.na(n))
+  {
+    flInput$linkmat <- flInput$linkmat[seq_len(n),]
+    flInput$sim <- flInput$sim[seq_len(n)]
+  }
+  gr <- graph_from_edgelist(flInput$linkmat)
+  co <- components(gr)
+  highest_gr <- unlist(lapply(seq_len(co$no), function(i)
+  {
+    all.i <- which(co$membership == i)
+    imax <- which.max(flInput$weights[all.i])
+    all.i[[imax]]
+  }))
+  if(co$no > 1)
+  {
+    addjoins <- matrix(c(rep(highest_gr[[1]], co$no - 1), highest_gr[seq_len(co$no)[-1]]), ncol=2)
+    flInput$linkmat <- rbind(flInput$linkmat, addjoins)
+    flInput$sim <- c(flInput$sim, rep(min(flInput$sim, na.rm = TRUE), co$no - 1))
+  }
+  return(flInput)
+}
