@@ -88,7 +88,7 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
   for(IntegerMatrix::iterator i = linkmat.begin() + firstPos; i < linkmat.begin() + nLinks + lastPos; i++)
   {
     // If lastPos was reached on first column, jump to firstPos on the second
-    if((i -linkmat.begin()) == lastPos + 1)
+    if((i -linkmat.begin()) == lastPos)
       i = linkmat.begin() + nLinks + firstPos;
     
     if(*i == lFrom)
@@ -112,7 +112,7 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
       
       //links.push_back(i - linkmat.begin());
       // Add the pair as [nTarg, 0] if the sim is not <0 already (ie if the point is not joined to another point already)
-      if(sim[nTarg % nLinks] > 0)
+      if(sim[nTarg % nLinks] >= 0)
         pairs[linkmat[nTarg]] = nodepair(nTarg+1, 0);
 
     }
@@ -122,7 +122,7 @@ void fastLiclust_iter(IntegerMatrix & linkmat, NumericVector & sim, IntegerVecto
   for(IntegerMatrix::iterator i = linkmat.begin() + firstPos; i < linkmat.begin() + nLinks + lastPos; i++)
   {
     // If lastPos was reached on first column, jump to firstPos on the second
-    if((i -linkmat.begin()) == lastPos + 1)
+    if((i -linkmat.begin()) == lastPos)
       i = linkmat.begin() + nLinks + firstPos;
     
 
