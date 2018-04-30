@@ -24,7 +24,7 @@ int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & we
 //'   summarized under a cluster (necessary in the algorithm.)
 //'   
 //' @return Nothing - the operation is performed in place on the matrix! Note this is highly unstandard
-//' R behavior. To get the results in a useful way, run first \link{\code{crop}} then \link{\code{toHclust}}.
+//' R behavior. To get the results in a useful way, run first \code{\link{crop}} then \code{\link{toHclust}}.
 //' @export
 // [[Rcpp::export]]
 int fastLiclust(IntegerMatrix & linkmat, NumericVector & sim, IntegerVector & weights, double disconnect = 1)
