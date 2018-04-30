@@ -21,4 +21,3 @@ A list with components linkmat (a matrix of connected vertex pairs),
 Mainly intended to show equivalence with hclust, when one generates a distance
 matrix to use with hclust and then with fastLiclust to generate the same dendrogram.
 }
-

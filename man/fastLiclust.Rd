@@ -25,4 +25,3 @@ memory-saving alternative on large sparse graphs which are only encoded in the l
 no nxn distance matrix. Other use cases are sparsely populated matrices which can be extracted directly from 
 \code{ff} objects on disk, so no nxn matrix has to be built in RAM.
 }
-

@@ -32,4 +32,3 @@ r <- 1.5
 ff_which_matrix(mymat, mymat > r)
 
 }
-

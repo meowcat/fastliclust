@@ -10,11 +10,10 @@ crop(flInput)
 \item{flInput}{}
 }
 \value{
-a flInput-format result for processing with \link{\code{toHclust}}
+a flInput-format result for processing with \code{\link{toHclust}}
 }
 \description{
-From a \link{\code{fastLiclust}}() result, crops out the actually useful part.
+From a \code{\link{fastLiclust}}() result, crops out the actually useful part.
 In addition, it checks for disconnected subgraphs and connects them together
 with the highest observed distance.
 }
-

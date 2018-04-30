@@ -85,13 +85,13 @@ toLinkmat <- function(mat, disconnect = 1)
 
 #' Crop the result matrix
 #' 
-#' From a \link{\code{fastLiclust}}() result, crops out the actually useful part.
+#' From a \code{\link{fastLiclust}}() result, crops out the actually useful part.
 #' In addition, it checks for disconnected subgraphs and connects them together
 #' with the highest observed distance.
 #'
 #' @param flInput 
 #'
-#' @return a flInput-format result for processing with \link{\code{toHclust}}
+#' @return a flInput-format result for processing with \code{\link{toHclust}}
 #' @export
 #'
 #' @examples

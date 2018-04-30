@@ -18,6 +18,6 @@
 #' R behavior. To get the results in a useful way, run first \link{\code{crop}} then \link{\code{toHclust}}.
 #' @export
 fastLiclust <- function(linkmat, sim, weights, disconnect = 1) {
-    .Call('fastliclust_fastLiclust', PACKAGE = 'fastliclust', linkmat, sim, weights, disconnect)
+    .Call('_fastliclust_fastLiclust', PACKAGE = 'fastliclust', linkmat, sim, weights, disconnect)
 }
 

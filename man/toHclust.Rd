@@ -17,4 +17,3 @@ a hclust-style object. See hclust for details
 \description{
 Convert fastliclust output to hclust-compatible output
 }
-

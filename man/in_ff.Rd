@@ -42,4 +42,3 @@ in_ff(mymat, mymat[mymat > 2] <- r)
 mymat
 
 }
-

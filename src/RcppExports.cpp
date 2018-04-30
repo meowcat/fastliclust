@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // fastLiclust
 int fastLiclust(IntegerMatrix& linkmat, NumericVector& sim, IntegerVector& weights, double disconnect);
-RcppExport SEXP fastliclust_fastLiclust(SEXP linkmatSEXP, SEXP simSEXP, SEXP weightsSEXP, SEXP disconnectSEXP) {
+RcppExport SEXP _fastliclust_fastLiclust(SEXP linkmatSEXP, SEXP simSEXP, SEXP weightsSEXP, SEXP disconnectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -18,4 +18,14 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(fastLiclust(linkmat, sim, weights, disconnect));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_fastliclust_fastLiclust", (DL_FUNC) &_fastliclust_fastLiclust, 4},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_fastliclust(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }
